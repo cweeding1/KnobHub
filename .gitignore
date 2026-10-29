@@ -1,0 +1,17 @@
+# Personal credentials: copy the *.example files instead
+secrets.h
+discord.json
+discord_token.json
+
+# Agent output
+pc_agent.log
+__pycache__/
+*.pyc
+
+# Build output
+build/
+*.bin
+*.elf
+
+.vscode/
+.idea/

@@ -1,0 +1,6 @@
+# PC agent (pc_agent.py), Windows only
+psutil
+pywin32
+pyserial
+pycaw
+pillow
