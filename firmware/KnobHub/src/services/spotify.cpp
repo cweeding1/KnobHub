@@ -8,12 +8,12 @@
 #include <base64.h>
 // secrets.h holds your own Wi-Fi and Spotify keys and isn't in git. Without
 // it the build still works and the Music app shows "Setup needed".
-#if __has_include("secrets.h")
-#include "secrets.h"
+#if __has_include("../../secrets.h")
+#include "../../secrets.h"
 #else
-#include "secrets.example.h"
+#include "../../secrets.example.h"
 #endif
-#include "text.h"
+#include "../ui/text.h"
 
 #define SPOTIFY_DEBUG 0   // log API calls to serial; off so they never interleave with PC link messages
 

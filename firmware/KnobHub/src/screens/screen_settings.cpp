@@ -1,8 +1,8 @@
 // Settings, one per page like the mixer: the dial changes the value, the side
 // buttons switch settings, tapping the middle flips on/off settings.
 #include "screens.h"
-#include "gfx.h"
-#include "settings.h"
+#include "../ui/gfx.h"
+#include "../services/settings.h"
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>

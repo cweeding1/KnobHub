@@ -20,7 +20,7 @@ import webbrowser
 REDIRECT_URI = "http://127.0.0.1:8888/callback"
 SCOPES = ("user-read-playback-state user-modify-playback-state user-read-currently-playing "
           "user-library-read user-library-modify")
-SECRETS = pathlib.Path(__file__).with_name("secrets.h")
+SECRETS = pathlib.Path(__file__).resolve().parent.parent / "firmware" / "KnobHub" / "secrets.h"
 
 
 def read_define(text, name):
@@ -30,7 +30,7 @@ def read_define(text, name):
 
 def main():
     if not SECRETS.exists():
-        sys.exit("Copy secrets.example.h to secrets.h and fill it in first.")
+        sys.exit("Copy firmware/KnobHub/secrets.example.h to secrets.h (same folder) and fill it in first.")
     text = SECRETS.read_text()
     client_id = read_define(text, "SPOTIFY_CLIENT_ID")
     client_secret = read_define(text, "SPOTIFY_CLIENT_SECRET")

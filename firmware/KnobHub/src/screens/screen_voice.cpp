@@ -4,8 +4,8 @@
 // Along the bottom, the whole cap below a line is one button: mute, leave or
 // deafen, whichever the dial has picked.
 #include "screens.h"
-#include "gfx.h"
-#include "pc_link.h"
+#include "../ui/gfx.h"
+#include "../services/pc_link.h"
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>

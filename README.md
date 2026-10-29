@@ -71,8 +71,8 @@ Pins used, in case you're adapting it to another board:
                                                              └─ Discord (local RPC pipe)
 ```
 
-- **Firmware** is an Arduino sketch: `KnobHub.ino` plus one `screen_*.cpp`
-  file per app. It draws each frame into a PSRAM framebuffer and pushes it to
+- **Firmware** (`firmware/KnobHub/`) is an Arduino sketch: `KnobHub.ino` plus
+  one file per app in `src/screens/`. It draws each frame into a PSRAM framebuffer and pushes it to
   the panel over QSPI DMA.
 - **The PC agent** finds the knob by its USB ID, about 10 times a second. It
   sends stats, mixer and Discord state, and takes volume, mute and Discord
@@ -134,10 +134,10 @@ You can use the Arduino IDE (2.x) or `arduino-cli`.
 | JPEGDEC | 1.8.4 |
 | SensorLib (by Lewis He) | 0.4.0 |
 
-The display, dial and touch drivers are already included in this folder.
+The display, dial and touch drivers are already included in the sketch.
 
-**Get the code.** Clone or download the repo. The folder must be named
-`KnobHub` to match `KnobHub.ino`, because Arduino requires it.
+**Get the code.** Clone or download the repo. The sketch is
+`firmware/KnobHub/KnobHub.ino`; open that file in the Arduino IDE.
 
 **Board settings**
 
@@ -152,8 +152,8 @@ The display, dial and touch drivers are already included in this folder.
 **Build and upload** to the ESP32-S3 port (see the USB note above):
 
 ```
-arduino-cli compile --fqbn esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB KnobHub
-arduino-cli upload -p COM3 --fqbn esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB KnobHub
+arduino-cli compile --fqbn esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB firmware/KnobHub
+arduino-cli upload -p COM3 --fqbn esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB firmware/KnobHub
 ```
 
 Replace `COM3` with your port. The firmware builds without any credentials;
@@ -168,7 +168,7 @@ The agent is Windows-only, because it uses Windows audio, lock-screen and
 performance APIs. It's tested with Python 3.13.
 
 ```
-cd KnobHub
+cd pc_agent
 py -m pip install --user -r requirements.txt
 py pc_agent.py
 ```
@@ -182,15 +182,15 @@ The agent logs to `pc_agent.log` next to the script. Look for
 pythonw pc_agent.py
 ```
 
-Start it from inside the `KnobHub` folder, or give the full path to
+Start it from inside the `pc_agent` folder, or give the full path to
 `pc_agent.py`. It imports `discord_rpc.py` from the same folder. Don't add
 Python's `-P` flag, which stops that import working.
 
 **Start it with Windows.** Press Win+R, run `shell:startup`, and create a
 shortcut in that folder:
 
-- **Target:** `"C:\path\to\pythonw.exe" "C:\path\to\KnobHub\pc_agent.py"`
-- **Start in:** `C:\path\to\KnobHub`
+- **Target:** `"C:\path\to\pythonw.exe" "C:\path\to\KnobHub\pc_agent\pc_agent.py"`
+- **Start in:** `C:\path\to\KnobHub\pc_agent`
 
 To find `pythonw.exe`, run
 `py -c "import sys, os; print(os.path.join(os.path.dirname(sys.executable), 'pythonw.exe'))"`.
@@ -213,13 +213,13 @@ development-mode app is limited to 5 users, which is plenty for your own knob.
    and **create an app**:
    - Redirect URI: exactly `http://127.0.0.1:8888/callback`
    - APIs used: **Web API**
-2. Copy `secrets.example.h` to `secrets.h` and fill in:
+2. In `firmware/KnobHub/`, copy `secrets.example.h` to `secrets.h` and fill in:
    - your **Wi-Fi** name and password (2.4 GHz only, as the ESP32 can't use 5 GHz)
    - the app's **Client ID** and **Client Secret**
 3. Run the one-time login. A browser opens; log in and approve.
 
    ```
-   py spotify_auth.py
+   py tools/spotify_auth.py
    ```
 
    This writes `SPOTIFY_REFRESH_TOKEN` into `secrets.h`.
@@ -247,11 +247,11 @@ own Discord application; it takes a minute:
    - Click **Reset Secret** and copy the **Client Secret**.
    - Add the redirect `http://127.0.0.1`. Discord requires one to be
      registered, though nothing is served there.
-3. Copy `discord.example.json` to `discord.json` and paste in both values.
+3. In `pc_agent/`, copy `discord.example.json` to `discord.json` and paste in both values.
 4. Start (or restart) the agent with Discord running. Discord shows an
    **authorize** pop-up; accept it.
 
-The agent saves the resulting token in `discord_token.json`, which is
+The agent saves the resulting token in `pc_agent/discord_token.json`, which is
 gitignored, and refreshes it automatically. If a future version needs more
 permissions, the agent asks you to approve again.
 
@@ -283,31 +283,30 @@ Without it, PC Stats shows load and memory but no temperatures.
 | Discord: "Check Discord" | Accept the authorize pop-up in the Discord app. |
 | Discord: "Access denied" | You declined the pop-up. Restart the agent to be asked again. |
 | Discord: no mute/deafen effect | Check `pc_agent.log` for `SET_VOICE_SETTINGS failed`. Delete `discord_token.json` and restart the agent to re-authorize. |
-| Dial turns the wrong way | Set `SWAP_KNOB_DIRECTION` to `1` in `KnobHub.ino`. |
+| Dial turns the wrong way | Set `SWAP_KNOB_DIRECTION` to `1` in `firmware/KnobHub/KnobHub.ino`. |
 | No temperatures | Start LibreHardwareMonitor with its web server on port 8085 (step 5). |
 
 ## Project layout
 
-| File | What it does |
-|---|---|
-| `KnobHub.ino` | Main loop: input (dial, touch, haptics), app switching, auto-dim, redraw logic |
-| `screen_home.cpp` | Home carousel and app icons |
-| `screen_music.cpp`, `spotify.cpp/.h` | Music screen; Spotify Web API client on its own task, JPEG album art |
-| `screen_pc.cpp` | PC Stats gauges and bars |
-| `screen_mixer.cpp` | Volume mixer |
-| `screen_voice.cpp` | Discord voice channel and the mute / leave / deafen bar |
-| `screen_notification.cpp` | Notification pop-up |
-| `screen_settings.cpp`, `settings.cpp/.h` | Settings screen and saved settings |
-| `pc_link.cpp/.h` | Serial link to the PC agent: parses messages, sends commands |
-| `gfx.cpp/.h`, `text.cpp/.h` | Framebuffer, drawing helpers, text fitting |
-| `display.c/.h` | Panel and backlight driver |
-| `esp_lcd_sh8601.*`, `lcd_init_cmds.h`, `bidi_switch_knob.*` | Display and dial drivers from Espressif / Waveshare |
-| `secrets.example.h` | Template for `secrets.h` (Wi-Fi and Spotify) |
-| `pc_agent.py` | The PC agent |
-| `discord_rpc.py` | Minimal Discord local-RPC client used by the agent |
-| `spotify_auth.py` | One-time Spotify login that fills in the refresh token |
-| `discord.example.json` | Template for `discord.json` |
-| `requirements.txt` | Python packages for the agent |
+```
+firmware/KnobHub/          Arduino sketch
+  KnobHub.ino              main loop: dial, touch, haptics, app switching, auto-dim, redraws
+  secrets.example.h        template for secrets.h (Wi-Fi and Spotify)
+  src/drivers/             display + backlight, SH8601 panel, dial (from Espressif / Waveshare)
+  src/ui/                  framebuffer, drawing helpers, text fitting
+  src/screens/             one file per app: home, music, pc, mixer, voice, notification, settings
+  src/services/            Spotify client, serial link to the PC, saved settings
+pc_agent/                  Windows companion
+  pc_agent.py              the agent: stats, mixer, lock screen, Discord, serial link
+  discord_rpc.py           minimal Discord local-RPC client
+  discord.example.json     template for discord.json
+  requirements.txt         Python packages
+tools/
+  spotify_auth.py          one-time Spotify login that fills in the refresh token
+```
+
+Arduino only compiles subfolders inside a sketch's `src/` folder. That's why
+the firmware code lives there.
 
 ## Serial protocol
 
@@ -335,6 +334,8 @@ one JSON object per line.
 | `ddeaf` | `d` (0/1): your Discord deafen |
 
 ## Credits and license
+
+In `firmware/KnobHub/src/drivers/`:
 
 - `esp_lcd_sh8601.*` and `bidi_switch_knob.*` are Espressif components
   (Apache-2.0, see their headers). The dial driver has changes from Waveshare's

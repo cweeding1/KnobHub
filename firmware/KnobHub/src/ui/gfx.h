@@ -1,7 +1,7 @@
 #pragma once
 // Shared drawing helpers. Every screen draws into one PSRAM canvas, then gfx_push() sends it to the panel.
 #include <Adafruit_GFX.h>
-#include "display.h"
+#include "../drivers/display.h"
 
 constexpr uint16_t rgb(uint8_t r, uint8_t g, uint8_t b)
 {

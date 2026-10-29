@@ -1,6 +1,6 @@
 #include "screens.h"
-#include "gfx.h"
-#include "spotify.h"
+#include "../ui/gfx.h"
+#include "../services/spotify.h"
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>

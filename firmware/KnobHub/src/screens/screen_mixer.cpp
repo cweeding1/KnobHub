@@ -1,8 +1,8 @@
 // Per-app volume. Dial adjusts it (the outer ring shows it while turning),
 // the side buttons switch apps, tapping the middle mutes.
 #include "screens.h"
-#include "gfx.h"
-#include "pc_link.h"
+#include "../ui/gfx.h"
+#include "../services/pc_link.h"
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>

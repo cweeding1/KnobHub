@@ -22,13 +22,13 @@
 #include <Wire.h>
 #include <Preferences.h>
 #include "SensorDRV2605.hpp"
-#include "display.h"
-#include "bidi_switch_knob.h"
-#include "gfx.h"
-#include "spotify.h"
-#include "pc_link.h"
-#include "screens.h"
-#include "settings.h"
+#include "src/drivers/display.h"
+#include "src/drivers/bidi_switch_knob.h"
+#include "src/ui/gfx.h"
+#include "src/services/spotify.h"
+#include "src/services/pc_link.h"
+#include "src/screens/screens.h"
+#include "src/services/settings.h"
 
 #define PIN_ENCODER_A 8
 #define PIN_ENCODER_B 7
